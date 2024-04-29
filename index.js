@@ -11,21 +11,16 @@ switch (action) {
     break;
 
   case "add":
-    if (action === "add") {
-      const hasAllArguments = argv.name && argv.email && argv.phone;
-      if (!hasAllArguments) {
-        console.log(
-          `For adding a new contact we need 'name', 'email' and 'phone'`.bgRed
-        );
-      }
+    const hasAllArguments = argv.name && argv.email && argv.phone;
+    if (!hasAllArguments) {
+      console.log(
+        `For adding a new contact we need 'name', 'email' and 'phone'`.bgRed
+      );
+    } else {
+      addContact(argv.name, argv.email, argv.phone);
     }
-    addContact(argv.name, argv.email, argv.phone);
     break;
 
   default:
     console.log(`This command ${action} is not supported`.bgYellow);
 }
-/*
-node index.js --action list
-node index.js --action add --name Mango --email bgv@gamil.com --phone 0742304959
-*/
