@@ -1,45 +1,58 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFile } from "node:fs/promises";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import colors from "colors";
 import { randomUUID } from "node:crypto";
+import { writeFile } from "node:fs/promises";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const contactsPath = join(__dirname, "db", "contacts.json");
+const contactsPath = `${__dirname}\\db\\contacts.json`;
 
-/**
- * Funcție pentru a lista toate contactele.
- */
+//CRUD
+
+//READ
 export async function listContacts() {
   try {
+    // console.log("GET Contacts".bgBlue);
     const contents = await readFile(contactsPath, { encoding: "utf8" });
     const contacts = JSON.parse(contents);
     console.table(contacts);
-  } catch (error) {
-    console.error("Error listing contacts:", error);
+  } catch (err) {
+    console.log("There is an error".bgRed.white);
+    console.error(err.message);
   }
 }
 
-/**
- * Funcție pentru a adăuga un nou contact.
- * @param {string} name Numele contactului.
- * @param {string} email Adresa de email a contactului.
- * @param {string} phone Numărul de telefon al contactului.
- */
+function getContactsById(contactId) {}
+
+function removeContact(contactId) {}
+
 export async function addContact(name, email, phone) {
   try {
     const contents = await readFile(contactsPath, { encoding: "utf8" });
     const contacts = JSON.parse(contents);
     const newContactId = randomUUID();
+    const isValid = name && email && phone;
+    if (!isValid) {
+      throw new Error("The contact does not have all required parameters");
+    }
     const newContact = {
       id: newContactId,
-      name,
-      email,
-      phone,
+      name: name,
+      email: email,
+      phone: phone,
     };
     contacts.push(newContact);
-    await writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-    console.log("Contact added successfully!");
+    const parsedContact = JSON.stringify(contacts);
+    await writeFile(contactsPath, parsedContact);
+    console.log("The contact has been added sucessfully!".bgGreen);
   } catch (error) {
-    console.error("Error adding contact:", error);
+    console.log("There is an error".bgRed.white);
+    console.log(error);
   }
 }
+
+// listContacts();
+// getContactsById();
+// removeContact();
+// addContact("Alex", "alex01@gmail.com", "0745698896");
