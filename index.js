@@ -1,26 +1,72 @@
-import { addContact, listContacts } from "./contacts.js";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import {
+  addContact,
+  listContacts,
+  getContactsById,
+  removeContact,
+} from "./contacts.js";
 
-const argv = yargs(hideBin(process.argv)).argv;
-const action = argv.action;
+const scriptName = "node index.js";
 
-switch (action) {
-  case "list":
-    listContacts();
-    break;
+yargs(hideBin(process.argv))
+  .scriptName(scriptName)
+  .command({
+    command: "list",
+    describe: "List all contacts",
+    handler: () => invokeAction({ action: "list" }),
+  })
+  .command({
+    command: "get <id>",
+    describe: "Get contact by ID",
+    builder: (yargs) => yargs.positional("id", { describe: "Contact ID" }),
+    handler: (argv) => invokeAction({ action: "get", id: argv.id }),
+  })
+  .command({
+    command: "add <name> <email> <phone>",
+    describe: "Add a new contact",
+    builder: (yargs) => {
+      yargs.positional("name", { describe: "Contact name" });
+      yargs.positional("email", { describe: "Contact email" });
+      yargs.positional("phone", { describe: "Contact phone number" });
+    },
+    handler: (argv) =>
+      invokeAction({
+        action: "add",
+        name: argv.name,
+        email: argv.email,
+        phone: argv.phone,
+      }),
+  })
+  .command({
+    command: "remove <id>",
+    describe: "Remove contact by ID",
+    builder: (yargs) => yargs.positional("id", { describe: "Contact ID" }),
+    handler: (argv) => invokeAction({ action: "remove", id: argv.id }),
+  })
+  .demandCommand(1, "You need at least one command before moving on")
+  .strict()
+  .help().argv;
 
-  case "add":
-    const hasAllArguments = argv.name && argv.email && argv.phone;
-    if (!hasAllArguments) {
-      console.log(
-        `For adding a new contact we need 'name', 'email' and 'phone'`.bgRed
-      );
-    } else {
-      addContact(argv.name, argv.email, argv.phone);
-    }
-    break;
+function invokeAction({ action, id, name, email, phone }) {
+  switch (action) {
+    case "list":
+      listContacts();
+      break;
 
-  default:
-    console.log(`This command ${action} is not supported`.bgYellow);
+    case "get":
+      getContactsById(id);
+      break;
+
+    case "add":
+      addContact(name, email, phone);
+      break;
+
+    case "remove":
+      removeContact(id);
+      break;
+
+    default:
+      console.log(`This command ${action} is not supported`.bgYellow);
+  }
 }
